@@ -179,4 +179,4 @@ function main() {
 }
 //AIMBOT
 
-setTimeout(main, 1000);
+setTimeout(main, 5000);
