@@ -101,6 +101,17 @@ function predictFuturePosition(timeToPredictSeconds) {
     return { x: predictedX, y: predictedY };
 }
 
+function calculateDistance(x1, y1, x2, y2) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+function calculateTimeToHit(x1, y1, x2, y2) {
+    const distance = calculateDistance(x1, y1, x2, y2);
+    return distance / config.projectileSpeed;
+}
+
 function getStrPtr(str) {
     return Memory.allocUtf8String(str);
 }
@@ -144,7 +155,6 @@ function main() {
             }
 
             let isAutoshot = (parseInt(args[6]) !== 0);
-            logToConsole(args[6]);
             if (!isAutoshot) {
                 return;
             }
