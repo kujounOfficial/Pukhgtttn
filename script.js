@@ -13,14 +13,20 @@ const OFFSETS = {
     LogicBattleModeClient_getOwnCharacter: 0xB2047C,
     ClientInput_type_offset: 4,
     BattleScreen_getClosestTargetForAutoshoot: 0x7C7778,
-    BattleScreen_activateSkill: 0x7B6C90
+    BattleScreen_activateSkill: 0x7B6C90,
+    Gui_getInstance: 0x573ED0,
+    StringCtor: 0xD525A0,
+    Gui_showFloaterTextAtDefaultPos: 0x7CB220
 };
 
 const natives = {
     BattleMode_getInstance: new NativeFunction(base.add(OFFSETS.BattleMode_getInstance), "pointer", []),
     LogicGameObjectClient_getX: new NativeFunction(base.add(OFFSETS.LogicGameObjectClient_getX), "uint32", ["pointer"]),
     LogicGameObjectClient_getY: new NativeFunction(base.add(OFFSETS.LogicGameObjectClient_getY), "uint32", ["pointer"]),
-    LogicBattleModeClient_getOwnCharacter: new NativeFunction(base.add(OFFSETS.LogicBattleModeClient_getOwnCharacter), "pointer", ["pointer"])
+    LogicBattleModeClient_getOwnCharacter: new NativeFunction(base.add(OFFSETS.LogicBattleModeClient_getOwnCharacter), "pointer", ["pointer"]),
+    Gui_getInstance: new NativeFunction(base.add(OFFSETS.Gui_getInstance), "pointer", []),
+    StringCtor: new NativeFunction(base.add(OFFSETS.StringCtor), "pointer", ["pointer", "pointer"]),
+    Gui_showFloaterTextAtDefaultPos: new NativeFunction(base.add(OFFSETS.Gui_showFloaterTextAtDefaultPos), "void", ["pointer", "pointer", "int", "int"])
 };
 
 //CONFIG
@@ -33,6 +39,10 @@ const config = {
 //CONFIG
 
 //AIMBOT
+const getinstance = natives.Gui_getInstance;
+const stringctor = natives.StringCtor;
+const floater = natives.Gui_showFloaterTextAtDefaultPos;
+
 const latestX = createRecentArray(config.lastpositionsLen);
 const latestY = createRecentArray(config.lastpositionsLen);
 const timeDiffs = createRecentArray(config.lastpositionsLen - 1);
@@ -89,6 +99,20 @@ function predictFuturePosition(timeToPredictSeconds) {
     const predictedY = currentY + avgVy * timeToPredictSeconds;
 
     return { x: predictedX, y: predictedY };
+}
+
+function getStrPtr(str) {
+    return Memory.allocUtf8String(str);
+}
+
+function getScPtr(str) {
+    var pointer = malloc(40);
+    stringctor(pointer, getStrPtr(str)); 
+    return pointer;
+}
+
+function showFloater(text) {
+    floater(getinstance(), getScPtr(text), 0, -1);
 }
 
 function main() {
@@ -150,6 +174,8 @@ function main() {
             battleMode = args[0];
         }
     });
+
+    showFloater("aimbot loaded");
 }
 //AIMBOT
 
