@@ -94,14 +94,14 @@ function predictFuturePosition(timeToPredictSeconds) {
     let totalVx = 0;
     let totalVy = 0;
     let weightSum = 0;
-        
+
     for (let i = 1; i < latestX.array.length; i++) {
         const dx = latestX.array[i] - latestX.array[i - 1];
         const dy = latestY.array[i] - latestY.array[i - 1];
         const dt = timeDiffs.array[i - 1] / 1000;
-            
+
         if (dt <= 0) continue;
-            
+
         const weight = i;
         totalVx += (dx / dt) * weight;
         totalVy += (dy / dt) * weight;
@@ -157,7 +157,7 @@ function aimbot() {
             latestY.push(y);
 
             const now = Date.now();
-            
+
             if (lastTime !== 0) {
                 const diff = now - lastTime;
                 timeDiffs.push(diff);
@@ -372,6 +372,8 @@ function dodge() {
                 if (!state.dodge) return;
                 const inputPtr = args[1];
                 const now = Date.now();
+                showFloater("move");
+                /*/
                 if (!inputPtr.isNull() && (now - lastDodgeTime > CONFIG.DODGE_COOLDOWN)) {
                     const moveX = inputPtr.add(8).readS32();
                     const moveY = inputPtr.add(12).readS32();
@@ -402,6 +404,7 @@ function dodge() {
                         }
                     }
                 }
+                /*/
             } catch (e) {}
         }
     });
@@ -417,20 +420,17 @@ function dodge() {
                 let ownTeamId = natives.LogicBattleModeClient_getOwnPlayerTeam(battleMode);
                 if (!ownCharacter || ownCharacter.isNull() || ownTeamId === -1) return;
 
-                let data = natives.LogicGameObjectClient_getData(ownCharacter);
-                myRadius = natives.LogicCharacterData_getCollisionRadius(data);
+                //let data = natives.LogicGameObjectClient_getData(ownCharacter);
+                //myRadius = natives.LogicCharacterData_getCollisionRadius(data);
 
-                const myX = natives.LogicGameObjectClient_getX(ownCharacter);
-                const myY = natives.LogicGameObjectClient_getY(ownCharacter);
+                //const myX = natives.LogicGameObjectClient_getX(ownCharacter);
+                //const myY = natives.LogicGameObjectClient_getY(ownCharacter);
 
                 const objMgr = battleMode.add(40).readPointer();
                 if (!objMgr || objMgr.isNull()) return;
 
                 const objects = objMgr.readPointer();
                 const count = objMgr.add(12).readU32();
-                if (!objects || objects.isNull() || count === 0 || count > 1000) return;
-
-                analyzeProjectilesAndPlayers(objects, count, ownTeamId);
             } catch (e) {}
         }
     });
