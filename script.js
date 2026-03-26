@@ -386,39 +386,36 @@ function dodge() {
                 const inputPtr = args[1];
                 const now = Date.now();
                 if(inputId != 2) return;
-                showFloater("move");
-                /*/
-                if (!inputPtr.isNull() && (now - lastDodgeTime > CONFIG.DODGE_COOLDOWN)) {
+                if(inputPtr.isNull() || ownCharacter.isNull()) return;
+                //showFloater("move");
+                if ((now - lastDodgeTime > CONFIG.DODGE_COOLDOWN)) {
                     const moveX = inputPtr.add(8).readS32();
                     const moveY = inputPtr.add(12).readS32();
 
-                    if (!ownCharacter.isNull()) {
-                        const myX = natives.LogicGameObjectClient_getX(ownCharacter);
-                        const myY = natives.LogicGameObjectClient_getY(ownCharacter);
+                    const myX = natives.LogicGameObjectClient_getX(ownCharacter);
+                    const myY = natives.LogicGameObjectClient_getY(ownCharacter);
 
-                        let needsToDodge = false;
-                        let bestDodgeDir = { x: 0, y: 0 };
+                    let needsToDodge = false;
+                    let bestDodgeDir = { x: 0, y: 0 };
 
-                        for (const projectile of projectiles.values()) {
-                            if (willCollide(projectile, myX, myY, myRadius)) {
-                                needsToDodge = true;
-                                bestDodgeDir = getDodgeDirection(projectile, myX, myY);
-                                break; // Prozatím reagujeme na první hrozící projektil
-                            }
-                        }
-
-                        if (needsToDodge) {
-                            lastDodgeTime = now;
-                            const dodgeStrength = CONFIG.DODGE_DISTANCE; // Jak daleko uhnout
-                            const dodgeMoveX = Math.round(myX + bestDodgeDir.x * dodgeStrength);
-                            const dodgeMoveY = Math.round(myY + bestDodgeDir.y * dodgeStrength);
-
-                            inputPtr.add(8).writeS32(dodgeMoveX);
-                            inputPtr.add(12).writeS32(dodgeMoveY);
+                    for (const projectile of projectiles.values()) {
+                        if (willCollide(projectile, myX, myY, myRadius)) {
+                            needsToDodge = true;
+                            bestDodgeDir = getDodgeDirection(projectile, myX, myY);
+                            break; // Prozatím reagujeme na první hrozící projektil
                         }
                     }
+
+                    if (needsToDodge) {
+                        lastDodgeTime = now;
+                        const dodgeStrength = CONFIG.DODGE_DISTANCE; // Jak daleko uhnout
+                        const dodgeMoveX = Math.round(myX + bestDodgeDir.x * dodgeStrength);
+                        const dodgeMoveY = Math.round(myY + bestDodgeDir.y * dodgeStrength);
+
+                        inputPtr.add(8).writeS32(dodgeMoveX);
+                        inputPtr.add(12).writeS32(dodgeMoveY);
+                    }
                 }
-                /*/
             } catch (e) {}
         }
     });
@@ -434,8 +431,8 @@ function dodge() {
                 let ownTeamId = natives.LogicBattleModeClient_getOwnPlayerTeam(battleMode);
                 if (!ownCharacter || ownCharacter.isNull() || ownTeamId === -1) return;
 
-                //let data = natives.LogicGameObjectClient_getData(ownCharacter);
-                //myRadius = natives.LogicCharacterData_getCollisionRadius(data);
+                const data = natives.LogicGameObjectClient_getData(ownCharacter);
+                myRadius = natives.LogicCharacterData_getCollisionRadius(data);
 
                 //const myX = natives.LogicGameObjectClient_getX(ownCharacter);
                 //const myY = natives.LogicGameObjectClient_getY(ownCharacter);
@@ -445,6 +442,10 @@ function dodge() {
 
                 const objects = objMgr.readPointer();
                 const count = objMgr.add(12).readU32();
+                
+                if(count >1000) return;
+                
+                analyzeProjectilesAndPlayers(objects, count, ownTeamId);
             } catch (e) {}
         }
     });
