@@ -210,6 +210,8 @@ function aimbot() {
 //DODGE
 const PTR_VTABLE_PROJECTILE_DATA = base.add(OFFSETS.VTABLE_PROJECTILE_DATA);
 
+let inputId = 0;
+
 const CONFIG = {
     DODGE_DISTANCE: 500,
     DODGE_COOLDOWN: 10,
@@ -370,8 +372,8 @@ function dodge() {
         onEnter: function(args) {
             try {
                 if (!state.dodge) return;
-                const inputId = args[1].toInt32();
-                showFloater(inputId.toString());
+                inputId = args[1].toInt32();
+                //showFloater(inputId.toString());
             } catch (e) {
                 //showFloater(e);
             }
@@ -383,7 +385,8 @@ function dodge() {
                 if (!state.dodge) return;
                 const inputPtr = args[1];
                 const now = Date.now();
-                //showFloater("move");
+                if(inputId != 2) return;
+                showFloater("move");
                 /*/
                 if (!inputPtr.isNull() && (now - lastDodgeTime > CONFIG.DODGE_COOLDOWN)) {
                     const moveX = inputPtr.add(8).readS32();
