@@ -366,14 +366,23 @@ function getDodgeDirection(projectile, myX, myY) {
 }
 
 function dodge() {
+    Interceptor.attach(base.add(OFFSETS.ClientInput_constructor_int), {
+        onEnter: function(args) {
+            try {
+                if (!state.dodge) return;
+                const inputId= args[1];
+                showFloater(inputId.readInt().toString());
+            } catch (e) {}
+        }
+    });
     Interceptor.attach(base.add(OFFSETS.ClientInputManager_addInput), {
         onEnter: function(args) {
             try {
                 if (!state.dodge) return;
                 const inputPtr = args[1];
-                const inputId = inputPtr.add(28).readInt().toString();
+                //const inputId = inputPtr.add(28).readInt().toString();
                 const now = Date.now();
-                showFloater(inputId);
+                //showFloater(inputId);
                 /*/
                 if (!inputPtr.isNull() && (now - lastDodgeTime > CONFIG.DODGE_COOLDOWN)) {
                     const moveX = inputPtr.add(8).readS32();
