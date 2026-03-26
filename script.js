@@ -370,10 +370,10 @@ function dodge() {
         onEnter: function(args) {
             try {
                 if (!state.dodge) return;
-                const inputId = args[1];
-                showFloater(inputId.readInt().toString());
+                const inputId = args[1].toInt32();
+                showFloater(inputId.toString());
             } catch (e) {
-                showFloater(e);
+                //showFloater(e);
             }
         }
     });
