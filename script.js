@@ -371,8 +371,9 @@ function dodge() {
             try {
                 if (!state.dodge) return;
                 const inputPtr = args[1];
+                const inputId = inputPtr.toString();
                 const now = Date.now();
-                showFloater("move");
+                showFloater(inputId);
                 /*/
                 if (!inputPtr.isNull() && (now - lastDodgeTime > CONFIG.DODGE_COOLDOWN)) {
                     const moveX = inputPtr.add(8).readS32();
