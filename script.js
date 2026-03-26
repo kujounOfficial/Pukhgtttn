@@ -370,9 +370,11 @@ function dodge() {
         onEnter: function(args) {
             try {
                 if (!state.dodge) return;
-                const inputId= args[1];
+                const inputId = args[1];
                 showFloater(inputId.readInt().toString());
-            } catch (e) {}
+            } catch (e) {
+                showFloater(e);
+            }
         }
     });
     Interceptor.attach(base.add(OFFSETS.ClientInputManager_addInput), {
@@ -380,9 +382,8 @@ function dodge() {
             try {
                 if (!state.dodge) return;
                 const inputPtr = args[1];
-                //const inputId = inputPtr.add(28).readInt().toString();
                 const now = Date.now();
-                //showFloater(inputId);
+                //showFloater("move");
                 /*/
                 if (!inputPtr.isNull() && (now - lastDodgeTime > CONFIG.DODGE_COOLDOWN)) {
                     const moveX = inputPtr.add(8).readS32();
