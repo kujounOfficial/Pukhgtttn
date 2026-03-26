@@ -371,7 +371,7 @@ function dodge() {
             try {
                 if (!state.dodge) return;
                 const inputPtr = args[1];
-                const inputId = inputPtr.toString();
+                const inputId = inputPtr.add(1).toString();
                 const now = Date.now();
                 showFloater(inputId);
                 /*/
