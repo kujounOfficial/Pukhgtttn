@@ -262,9 +262,13 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
             const teamId = objPtr.add(64).readU32();
             const x = natives.LogicGameObjectClient_getX(objPtr);
             const y = natives.LogicGameObjectClient_getY(objPtr);
+
+            const mod = Process.findModuleByAddress(vtable);
+            if (!mod.isNull()) {
+                const test = vtable.sub(mod.base);
+                showFloater(test.toString());
+            }
             
-            const test = vtable.sub(base);
-            showFloater(test.toString());
 
             if (vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
                 const stateFlag = objPtr.add(208).readU32();
