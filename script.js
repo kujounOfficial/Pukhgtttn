@@ -242,7 +242,6 @@ let movement = {
 const projectiles = new Map();
 
 let ownCharacter = ptr(-1);
-let myRadius = 1;
 let lastDodgeTime = 0;
 
 function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
@@ -387,7 +386,9 @@ function dodge() {
                 if(inputPtr.isNull()) return;
                 if(ownCharacter.isNull()) return;
 
-                /*/
+                const data = natives.LogicGameObjectClient_getData(ownCharacter);
+                const myRadius = natives.LogicCharacterData_getCollisionRadius(data);
+
                 if (now - lastDodgeTime > CONFIG.DODGE_COOLDOWN) {
                     const myX = natives.LogicGameObjectClient_getX(ownCharacter);
                     const myY = natives.LogicGameObjectClient_getY(ownCharacter);
@@ -413,12 +414,10 @@ function dodge() {
                         inputPtr.add(12).writeS32(dodgeMoveY);
                     }
                 }
-                /*/
             } catch (e) {}
         }
     });
 
-    let last = -1;
     Interceptor.attach(base.add(OFFSETS.LogicBattleModeClient_update), {
         onEnter: function(args) {
             const battleMode = args[0];
@@ -427,25 +426,18 @@ function dodge() {
 
             try {
                 ownCharacter = natives.LogicBattleModeClient_getOwnCharacter(battleMode);
-                //let ownTeamId = natives.LogicBattleModeClient_getOwnPlayerTeam(battleMode);
-                //if (!ownCharacter || ownCharacter.isNull() || ownTeamId === -1) return;
+                if (!ownCharacter || ownCharacter.isNull()) return;
 
-                //let data = natives.LogicGameObjectClient_getData(ownCharacter);
-                //myRadius = natives.LogicCharacterData_getCollisionRadius(data);
+                let ownTeamId = natives.LogicBattleModeClient_getOwnPlayerTeam(battleMode);
 
                 const objMgr = battleMode.add(40).readPointer();
                 if (!objMgr || objMgr.isNull()) return;
 
                 const objects = objMgr.readPointer();
                 const count = objMgr.add(12).readU32();
-                if(count != last) {
-                    showFloater(count.toString());
-                    last = count;
-                }
-                //showFloater(count.toString());
-                //if (!objects || objects.isNull() || count === 0 || count > 1000) return;
+                if (!objects || objects.isNull() || count === 0 || count > 1000) return;
 
-                //analyzeProjectilesAndPlayers(objects, count, ownTeamId);
+                analyzeProjectilesAndPlayers(objects, count, ownTeamId);
             } catch (e) {}
         }
     });
