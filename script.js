@@ -407,6 +407,7 @@ function dodge() {
                     }
 
                     if (needsToDodge) {
+                        showFloater("dodge")
                         lastDodgeTime = now;
                         const dodgeStrength = CONFIG.DODGE_DISTANCE; // Jak daleko uhnout
                         const dodgeMoveX = Math.round(myX + bestDodgeDir.x * dodgeStrength);
