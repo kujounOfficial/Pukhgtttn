@@ -418,6 +418,7 @@ function dodge() {
         }
     });
 
+    let last = -1;
     Interceptor.attach(base.add(OFFSETS.LogicBattleModeClient_update), {
         onEnter: function(args) {
             const battleMode = args[0];
@@ -437,7 +438,11 @@ function dodge() {
 
                 const objects = objMgr.readPointer();
                 const count = objMgr.add(12).readU32();
-                showFloater(count.toString());
+                if(count != last) {
+                    showFloater(count.toString());
+                    last = count;
+                }
+                //showFloater(count.toString());
                 //if (!objects || objects.isNull() || count === 0 || count > 1000) return;
 
                 //analyzeProjectilesAndPlayers(objects, count, ownTeamId);
