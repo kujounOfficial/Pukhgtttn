@@ -254,6 +254,7 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
 
             const dataPtr = natives.LogicGameObjectClient_getData(objPtr);
             if (!dataPtr || dataPtr.isNull()) continue;
+            showFloater(dataPtr.toString())
 
             const vtable = dataPtr.readPointer();
             const id = natives.LogicGameObjectClient_getGlobalID(objPtr).toString();
