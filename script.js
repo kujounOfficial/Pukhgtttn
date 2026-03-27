@@ -445,7 +445,7 @@ function dodge() {
                 const objects = objMgr.readPointer();
                 const count = objMgr.add(12).readU32();
                 
-                showFloater(count.toString())
+                //showFloater(count.toString())
                 
                 if(count >1000) return;
                 
