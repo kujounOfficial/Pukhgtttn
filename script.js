@@ -397,7 +397,7 @@ function dodge() {
 
                     let needsToDodge = false;
                     let bestDodgeDir = { x: 0, y: 0 };
-                    showFloater(projectiles.size.toString())
+                    //showFloater(projectiles.size.toString())
 
                     for (const projectile of projectiles.values()) {
                         if (willCollide(projectile, myX, myY, myRadius)) {
@@ -444,6 +444,8 @@ function dodge() {
 
                 const objects = objMgr.readPointer();
                 const count = objMgr.add(12).readU32();
+                
+                showFloater(count.toString())
                 
                 if(count >1000) return;
                 
