@@ -94,14 +94,14 @@ function predictFuturePosition(timeToPredictSeconds) {
     let totalVx = 0;
     let totalVy = 0;
     let weightSum = 0;
-
+        
     for (let i = 1; i < latestX.array.length; i++) {
         const dx = latestX.array[i] - latestX.array[i - 1];
         const dy = latestY.array[i] - latestY.array[i - 1];
         const dt = timeDiffs.array[i - 1] / 1000;
-
+            
         if (dt <= 0) continue;
-
+            
         const weight = i;
         totalVx += (dx / dt) * weight;
         totalVy += (dy / dt) * weight;
@@ -157,7 +157,7 @@ function aimbot() {
             latestY.push(y);
 
             const now = Date.now();
-
+            
             if (lastTime !== 0) {
                 const diff = now - lastTime;
                 timeDiffs.push(diff);
@@ -209,7 +209,6 @@ function aimbot() {
 
 //DODGE
 const PTR_VTABLE_PROJECTILE_DATA = base.add(OFFSETS.VTABLE_PROJECTILE_DATA);
-
 let inputId = 0;
 
 const CONFIG = {
@@ -372,11 +371,9 @@ function dodge() {
         onEnter: function(args) {
             try {
                 if (!state.dodge) return;
-                inputId = args[1].toInt32();
-                //showFloater(inputId.toString());
-            } catch (e) {
-                //showFloater(e);
-            }
+                const inputPtr = args[0];
+                inputId = args[1];
+            } catch (e) {}
         }
     });
     Interceptor.attach(base.add(OFFSETS.ClientInputManager_addInput), {
@@ -385,32 +382,30 @@ function dodge() {
                 if (!state.dodge) return;
                 const inputPtr = args[1];
                 const now = Date.now();
-                if(inputId != 2) return;
-                if(inputPtr.isNull() || ownCharacter.isNull()) return;
-                //showFloater("move");
-                if ((now - lastDodgeTime > CONFIG.DODGE_COOLDOWN)) {
-                    const moveX = inputPtr.add(8).readS32();
-                    const moveY = inputPtr.add(12).readS32();
 
+                if(inputId != 2) return;
+                if(inputPtr.isNull()) return;
+                if(ownCharacter.isNull()) return;
+
+                /*/
+                if (now - lastDodgeTime > CONFIG.DODGE_COOLDOWN) {
                     const myX = natives.LogicGameObjectClient_getX(ownCharacter);
                     const myY = natives.LogicGameObjectClient_getY(ownCharacter);
 
                     let needsToDodge = false;
                     let bestDodgeDir = { x: 0, y: 0 };
-                    //showFloater(projectiles.size.toString())
 
                     for (const projectile of projectiles.values()) {
                         if (willCollide(projectile, myX, myY, myRadius)) {
                             needsToDodge = true;
                             bestDodgeDir = getDodgeDirection(projectile, myX, myY);
-                            break; // Prozatím reagujeme na první hrozící projektil
+                            break;
                         }
                     }
 
                     if (needsToDodge) {
-                        showFloater("dodge")
                         lastDodgeTime = now;
-                        const dodgeStrength = CONFIG.DODGE_DISTANCE; // Jak daleko uhnout
+                        const dodgeStrength = CONFIG.DODGE_DISTANCE;
                         const dodgeMoveX = Math.round(myX + bestDodgeDir.x * dodgeStrength);
                         const dodgeMoveY = Math.round(myY + bestDodgeDir.y * dodgeStrength);
 
@@ -418,6 +413,7 @@ function dodge() {
                         inputPtr.add(12).writeS32(dodgeMoveY);
                     }
                 }
+                /*/
             } catch (e) {}
         }
     });
@@ -430,27 +426,21 @@ function dodge() {
 
             try {
                 ownCharacter = natives.LogicBattleModeClient_getOwnCharacter(battleMode);
-                let ownTeamId = natives.LogicBattleModeClient_getOwnPlayerTeam(battleMode);
-                if (!ownCharacter || ownCharacter.isNull() || ownTeamId === -1) return;
+                //let ownTeamId = natives.LogicBattleModeClient_getOwnPlayerTeam(battleMode);
+                //if (!ownCharacter || ownCharacter.isNull() || ownTeamId === -1) return;
 
-                const data = natives.LogicGameObjectClient_getData(ownCharacter);
-                myRadius = natives.LogicCharacterData_getCollisionRadius(data);
-                showFloater(myRadius.toString())
-
-                //const myX = natives.LogicGameObjectClient_getX(ownCharacter);
-                //const myY = natives.LogicGameObjectClient_getY(ownCharacter);
+                //let data = natives.LogicGameObjectClient_getData(ownCharacter);
+                //myRadius = natives.LogicCharacterData_getCollisionRadius(data);
 
                 const objMgr = battleMode.add(40).readPointer();
                 if (!objMgr || objMgr.isNull()) return;
 
                 const objects = objMgr.readPointer();
                 const count = objMgr.add(12).readU32();
-                
-                //showFloater(count.toString())
-                
-                if(count >1000) return;
-                
-                analyzeProjectilesAndPlayers(objects, count, ownTeamId);
+                showFloater(count.toString());
+                //if (!objects || objects.isNull() || count === 0 || count > 1000) return;
+
+                //analyzeProjectilesAndPlayers(objects, count, ownTeamId);
             } catch (e) {}
         }
     });
