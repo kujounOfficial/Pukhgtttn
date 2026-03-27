@@ -263,14 +263,15 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
             const x = natives.LogicGameObjectClient_getX(objPtr);
             const y = natives.LogicGameObjectClient_getY(objPtr);
 
-            const mod = Process.findModuleByAddress(vtable);
-            if (!mod.isNull()) {
-                const test = vtable.sub(mod.base);
-                showFloater(test.toString());
-            }
+            //const mod = Process.findModuleByAddress(vtable);
+            //if (!mod.isNull()) {
+                //const test = vtable.sub(mod.base);
+                //showFloater(test.toString());
+            //}
             
 
             if (vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
+                showFloater("bullet");
                 const stateFlag = objPtr.add(208).readU32();
                 if (teamId === myTeamId || stateFlag !== 0) {
                     projectiles.delete(id);
