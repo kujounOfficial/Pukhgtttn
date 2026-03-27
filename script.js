@@ -435,6 +435,7 @@ function dodge() {
 
                 const data = natives.LogicGameObjectClient_getData(ownCharacter);
                 myRadius = natives.LogicCharacterData_getCollisionRadius(data);
+                showFloater(myRadius.toString())
 
                 //const myX = natives.LogicGameObjectClient_getX(ownCharacter);
                 //const myY = natives.LogicGameObjectClient_getY(ownCharacter);
