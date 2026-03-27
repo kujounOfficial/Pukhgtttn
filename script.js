@@ -397,6 +397,7 @@ function dodge() {
 
                     let needsToDodge = false;
                     let bestDodgeDir = { x: 0, y: 0 };
+                    showFloater(projectiles.size.toString())
 
                     for (const projectile of projectiles.values()) {
                         if (willCollide(projectile, myX, myY, myRadius)) {
