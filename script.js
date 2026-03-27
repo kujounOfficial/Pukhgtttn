@@ -254,7 +254,7 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
 
             const dataPtr = natives.LogicGameObjectClient_getData(objPtr);
             if (!dataPtr || dataPtr.isNull()) continue;
-            showFloater(dataPtr.toString())
+            //showFloater(dataPtr.toString())
 
             const vtable = dataPtr.readPointer();
             const id = natives.LogicGameObjectClient_getGlobalID(objPtr).toString();
@@ -272,9 +272,9 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
             
 
             if (vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
-                showFloater("bullet");
                 const stateFlag = objPtr.add(208).readU32();
                 if (teamId === myTeamId || stateFlag !== 0) {
+                    showFloater("bullet");
                     projectiles.delete(id);
                     continue;
                 }
