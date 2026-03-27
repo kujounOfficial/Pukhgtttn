@@ -274,7 +274,7 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
             if (vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
                 const stateFlag = objPtr.add(208).readU32();
                 if (teamId === myTeamId || stateFlag !== 0) {
-                    showFloater("bullet");
+                    //showFloater("bullet");
                     projectiles.delete(id);
                     continue;
                 }
@@ -414,6 +414,7 @@ function dodge() {
                     }
 
                     if (needsToDodge) {
+                        showFloater("dodge");
                         lastDodgeTime = now;
                         const dodgeStrength = CONFIG.DODGE_DISTANCE;
                         const dodgeMoveX = Math.round(myX + bestDodgeDir.x * dodgeStrength);
