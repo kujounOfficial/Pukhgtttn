@@ -707,8 +707,8 @@ function main() {
 
             menu.addButton("spray", "Spray", {
                  on: () => {
-                     const slotId = getRandomSpraySlot();
-                     showSpray(slotId);
+                     //const slotId = getRandomSpraySlot();
+                     showSpray(6);
                  },
                  off: () => {}
             });
