@@ -490,7 +490,7 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
                 //showFloater(test.toString());
             //}
             if(vtable.equals(PTR_VTABLE_MYDEATH_DATA)) {
-                showFloater("my dead object");
+                //showFloater("my dead object");
             }
 
             const maxHP = objPtr.add(0xac).readS32();
