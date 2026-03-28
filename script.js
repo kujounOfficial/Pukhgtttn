@@ -488,11 +488,14 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
             if(vtable.equals(PTR_VTABLE_MYDEATH_DATA)) {
                 showFloater("my dead object");
             }
+
+            const maxHP = objPtr.add(0xac).readS32();
+            showFloater(maxHP);
             
-            if(!vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
-                const addres = vtable.sub(base);
-                showFloater(addres.toString());
-            }  
+            //if(!vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
+                //const addres = vtable.sub(base);
+                //showFloater(addres.toString());
+            //}  
             
 
             if (vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
