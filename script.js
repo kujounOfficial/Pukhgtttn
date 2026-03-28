@@ -218,7 +218,9 @@ const OFFSETS = {
     ClientInputManager_addInput: 0x752564,
     ClientInput_constructor_int: 0xAE44EC,
     ignoresCollisions: 0xA4EACC,
-    tileBasedRaycast: 0xB61FB0
+    tileBasedRaycast: 0xB61FB0,
+    showEmote: 0x552138,
+    showSpray: 0x5521C4
 };
 
 const natives = {
@@ -238,6 +240,8 @@ const natives = {
     LogicCharacterData_getCollisionRadius: new NativeFunction(base.add(OFFSETS.LogicCharacterData_getCollisionRadius), "uint32", ["pointer"]),
     ClientInput_constructor_int: new NativeFunction(base.add(OFFSETS.ClientInput_constructor_int), "pointer", ["pointer", "int"]),
     ClientInputManager_addInput: new NativeFunction(base.add(OFFSETS.ClientInputManager_addInput), "void", ["pointer", "pointer"]),
+    showSpray: new NativeFunction(base.add(OFFSETS.showSpray), 'void', ['uint32']),
+    showEmote: new NativeFunction(base.add(OFFSETS.showEmote), 'void', ['uint32'])
 };
 
 //CONFIG
@@ -673,6 +677,11 @@ function MapData() {
     });
 }
 
+function getRandomSpraySlot() {
+    // spray slots are 6–10
+    return Math.floor(Math.random() * 5) + 6;
+}
+
 function main() {
     aimbot();
     dodge();
@@ -696,9 +705,12 @@ function main() {
                  off: () => {state.dodge = false;}
             });
 
-            menu.addButton("ghost", "Ghost Mode", {
-                 on: () => {state.ghost = true;},
-                 off: () => {state.ghost = false;}
+            menu.addButton("spray", "Spray", {
+                 on: () => {
+                     const slotId = getRandomSpraySlot();
+                     showSpray(slotId);
+                 },
+                 off: () => {}
             });
 
             menu.start();
