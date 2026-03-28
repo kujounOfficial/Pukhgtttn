@@ -443,6 +443,21 @@ const characters = [];
 let ownCharacter = ptr(-1);
 let lastDodgeTime = 0;
 
+function readString(strPtr) {
+    var ptr_ = ptr(strPtr);
+    
+    var len = ptr_.add(0x4).readS32();
+    
+    if (len <= 7) {
+        // inline - data přímo na 0x08
+        return ptr_.add(0x8).readUtf8String(len);
+    } else {
+        // heap - na 0x08 je pointer na data
+        var dataPtr = ptr_.add(0x8).readPointer();
+        return dataPtr.readUtf8String(len);
+    }
+}
+
 function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
     const now = Date.now();
     const currentIds = new Set();
@@ -469,7 +484,10 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
                 //showFloater(test.toString());
             //}
             if(vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
-                showFloater("found character");
+                //showFloater("found character");
+                const stringName = objPtr.add(0x220);
+                const name = readString(stringName);
+                showFloater(name);
             }
             
 
