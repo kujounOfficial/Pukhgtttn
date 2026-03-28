@@ -661,7 +661,7 @@ function ghostMode() {
 function main() {
     aimbot();
     dodge();
-    ghostMode();
+    //ghostMode();
     Java.perform(() => {
         Java.scheduleOnMainThread(() => {
             const cl = getClassLoader();
