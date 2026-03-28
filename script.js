@@ -220,7 +220,8 @@ const OFFSETS = {
     ignoresCollisions: 0xA4EACC,
     tileBasedRaycast: 0xB61FB0,
     showEmote: 0x552138,
-    showSpray: 0x5521C4
+    showSpray: 0x5521C4,
+    characterVTABLE: 0x106C968
 };
 
 const natives = {
@@ -405,6 +406,7 @@ function aimbot() {
 
 //DODGE
 const PTR_VTABLE_PROJECTILE_DATA = base.add(OFFSETS.VTABLE_PROJECTILE_DATA);
+const PTR_VTABLE_CHARACTER_DATA = base.add(OFFSETS.characterVTABLE);
 let inputId = 0;
 
 const CONFIG = {
@@ -436,6 +438,7 @@ let movement = {
 }
 
 const projectiles = new Map();
+const characters = [];
 
 let ownCharacter = ptr(-1);
 let lastDodgeTime = 0;
@@ -465,6 +468,9 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
                 //const test = vtable.sub(mod.base);
                 //showFloater(test.toString());
             //}
+            if(vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
+                showFloater("found character");
+            }
             
 
             if (vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
@@ -587,7 +593,7 @@ function dodge() {
                 const inputPtr = args[1];
                 const now = Date.now();
                 const test = inputPtr.add(8).readS32();
-                showFloater(test.toString());
+                //showFloater(test.toString());
 
                 if(inputId != 2) return;
                 if(inputPtr.isNull()) return;
@@ -656,8 +662,8 @@ function dodge() {
 function ghostMode() {
     Interceptor.attach(base.add(OFFSETS.ignoresCollisions), {
         onLeave(retval) {
-            showFloater("colisions 0");
-            retval.replace(0);
+            //showFloater("colisions 0");
+            //retval.replace(0);
             //if(state.ghost) {
                 //retval.replace(1);
             //}
@@ -677,8 +683,6 @@ function MapData() {
             const width  = mapData.add(0xc4).readInt();
             const height = mapData.add(0xc8).readInt();
             const tileArrayPtr = mapData.add(0x20).readPointer();
-            //showFloater("MapSize: width: " + width.toString() + " height: " + height.toString());
-            showEmote(1);
         }
     });
 }
@@ -704,11 +708,6 @@ function main() {
             menu.addButton("dodge", "Auto Dodge", {
                  on: () => {state.dodge = true;},
                  off: () => {state.dodge = false;}
-            });
-
-            menu.addButton("spray", "Spray", {
-                 on: () => {},
-                 off: () => {}
             });
 
             menu.start();
