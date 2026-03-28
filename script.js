@@ -665,6 +665,11 @@ function ghostMode() {
     });
 }
 
+function getRandomSpraySlot() {
+    // spray slots are 6–10
+    return Math.floor(Math.random() * 5) + 6;
+}
+
 function MapData() {
     Interceptor.attach(base.add(OFFSETS.tileBasedRaycast), {
         onEnter: function(args) {
@@ -672,14 +677,12 @@ function MapData() {
             const width  = mapData.add(0xc4).readInt();
             const height = mapData.add(0xc8).readInt();
             const tileArrayPtr = mapData.add(0x20).readPointer();
-            showFloater("MapSize: width: " + width.toString() + " height: " + height.toString());
+            //showFloater("MapSize: width: " + width.toString() + " height: " + height.toString());
+            const slotId = getRandomSpraySlot();
+            showFloater(slotId.toString());
+            showSpray(6);
         }
     });
-}
-
-function getRandomSpraySlot() {
-    // spray slots are 6–10
-    return Math.floor(Math.random() * 5) + 6;
 }
 
 function main() {
@@ -706,10 +709,7 @@ function main() {
             });
 
             menu.addButton("spray", "Spray", {
-                 on: () => {
-                     //const slotId = getRandomSpraySlot();
-                     showSpray(6);
-                 },
+                 on: () => {},
                  off: () => {}
             });
 
