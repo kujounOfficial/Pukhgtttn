@@ -480,6 +480,10 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
             const x = natives.LogicGameObjectClient_getX(objPtr);
             const y = natives.LogicGameObjectClient_getY(objPtr);
 
+            const table = objPtr.readPointer();
+            const adres = table.sub(base);
+            showFloater(adres.toString());
+
             //const mod = Process.findModuleByAddress(vtable);
             //if (!mod.isNull()) {
                 //const test = vtable.sub(mod.base);
@@ -489,8 +493,8 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
                 showFloater("my dead object");
             }
 
-            const maxHP = objPtr.add(0xac).readS32();
-            showFloater(maxHP);
+            //const maxHP = objPtr.add(0xac).readS32();
+            //showFloater(maxHP);
             
             //if(!vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
                 //const addres = vtable.sub(base);
