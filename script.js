@@ -651,8 +651,8 @@ function dodge() {
 function ghostMode() {
     Interceptor.attach(base.add(OFFSETS.ignoresCollisions), {
         onLeave(retval) {
-            showFloater("colisions");
-            retval.replace(1);
+            showFloater("colisions 0");
+            retval.replace(0);
             //if(state.ghost) {
                 //retval.replace(1);
             //}
