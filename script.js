@@ -222,7 +222,7 @@ const OFFSETS = {
     showEmote: 0x552138,
     showSpray: 0x5521C4,
     characterVTABLE: 0x106C968,
-    logicPlayerVTABLE: 0x10C1CA0
+    myDeathVTABLE: 0x10C1CA0
 };
 
 const natives = {
@@ -408,7 +408,7 @@ function aimbot() {
 //DODGE
 const PTR_VTABLE_PROJECTILE_DATA = base.add(OFFSETS.VTABLE_PROJECTILE_DATA);
 const PTR_VTABLE_CHARACTER_DATA = base.add(OFFSETS.characterVTABLE);
-const PTR_VTABLE_LOGICPLAYER_DATA = base.add(OFFSETS.logicPlayerVTABLE);
+const PTR_VTABLE_MYDEATH_DATA = base.add(OFFSETS.myDeathVTABLE);
 let inputId = 0;
 
 const CONFIG = {
@@ -485,13 +485,13 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
                 //const test = vtable.sub(mod.base);
                 //showFloater(test.toString());
             //}
-            if(vtable.equals(PTR_VTABLE_LOGICPLAYER_DATA)) {
-                showFloater("player");
+            if(vtable.equals(PTR_VTABLE_MYDEATH_DATA)) {
+                showFloater("my dead object");
             }
             
-            if(teamId >= 1 && !vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
+            if(!vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
                 const addres = vtable.sub(base);
-                //showFloater(addres.toString());
+                showFloater(addres.toString());
             }  
             
 
