@@ -1,9 +1,198 @@
+let logMessages = [];
+let isLogVisible = false;
+
+function getClassLoader() {
+    return {
+        Gravity: Java.use("android.view.Gravity"),
+        TextView: Java.use("android.widget.TextView"),
+        LinearLayout: Java.use("android.widget.LinearLayout"),
+        LinearLayout_LayoutParams: Java.use("android.widget.LinearLayout$LayoutParams"),
+        Color: Java.use("android.graphics.Color"),
+        ActivityThread: Java.use("android.app.ActivityThread"),
+        ActivityThread_ActivityClientRecord: Java.use("android.app.ActivityThread$ActivityClientRecord"),
+        View_OnTouchListener: Java.use("android.view.View$OnTouchListener"),
+        View_OnClickListener: Java.use("android.view.View$OnClickListener"),
+        MotionEvent: Java.use("android.view.MotionEvent"),
+        String: Java.use("java.lang.String"),
+        ScrollView: Java.use("android.widget.ScrollView"),
+        Button: Java.use("android.widget.Button"),
+        GradientDrawable: Java.use("android.graphics.drawable.GradientDrawable"),
+    };
+}
+
+function dp(context, value) {
+    return parseInt(value * context.getResources().getDisplayMetrics().density.value);
+}
+
+function getMainActivity(cl) {
+    const thread = cl.ActivityThread.sCurrentActivityThread.value;
+    const record = Java.cast(thread.mActivities.value.valueAt(0), cl.ActivityThread_ActivityClientRecord);
+    return record.activity.value;
+}
+
+function makeRoundedDrawable(cl, colorHex, radiusDp, activity) {
+    const drawable = cl.GradientDrawable.$new();
+    drawable.setShape(cl.GradientDrawable.RECTANGLE.value);
+    drawable.setColor(cl.Color.parseColor(colorHex));
+    drawable.setCornerRadius(dp(activity, radiusDp));
+    return drawable;
+}
+
+class Menu {
+    #cl; #activity; #MATCH; #WRAP;
+    #contentView; #mainLayout; #menuLayout; #scrollLayout;
+    #isOpen = false; #openBtn; #colorOn; #colorOff;
+
+    constructor(cl, activity) {
+        this.#cl = cl;
+        this.#activity = activity;
+        this.#MATCH = cl.LinearLayout_LayoutParams.MATCH_PARENT.value;
+        this.#WRAP = cl.LinearLayout_LayoutParams.WRAP_CONTENT.value;
+        this.#build();
+    }
+
+    #build() {
+        // Fullscreen transparent overlay
+        this.#contentView = this.#cl.LinearLayout.$new(this.#activity);
+        const p = this.#cl.LinearLayout_LayoutParams.$new(this.#MATCH, this.#MATCH);
+        this.#contentView.setLayoutParams(p);
+        this.#contentView.setGravity(this.#cl.Gravity.TOP.value | this.#cl.Gravity.START.value);
+        this.#contentView.setBackgroundColor(this.#cl.Color.TRANSPARENT.value);
+
+        // Floating container (button + menu stacked vertically)
+        this.#mainLayout = this.#cl.LinearLayout.$new(this.#activity);
+        const mp = this.#cl.LinearLayout_LayoutParams.$new(this.#WRAP, this.#WRAP);
+        mp.setMargins(dp(this.#activity, 16), dp(this.#activity, 60), 0, 0);
+        this.#mainLayout.setLayoutParams(mp);
+        this.#mainLayout.setOrientation(this.#mainLayout.VERTICAL.value);
+
+        // Open/close button
+        this.#openBtn = this.#cl.Button.$new(this.#activity);
+        const bp = this.#cl.LinearLayout_LayoutParams.$new(dp(this.#activity, 56), dp(this.#activity, 56));
+        this.#openBtn.setLayoutParams(bp);
+        this.#openBtn.setText(this.#cl.String.$new("☰"));
+        this.#openBtn.setTextColor(this.#cl.Color.parseColor("#FFFFFF"));
+        this.#openBtn.setTextSize(dp(this.#activity, 6)); // ~18sp
+        this.#openBtn.setBackground(makeRoundedDrawable(this.#cl, "#635985", 16, this.#activity));
+
+        // Menu panel
+        this.#menuLayout = this.#cl.LinearLayout.$new(this.#activity);
+        const mlp = this.#cl.LinearLayout_LayoutParams.$new(dp(this.#activity, 220), this.#WRAP);
+        mlp.setMargins(0, dp(this.#activity, 8), 0, 0);
+        this.#menuLayout.setLayoutParams(mlp);
+        this.#menuLayout.setOrientation(this.#menuLayout.VERTICAL.value);
+        this.#menuLayout.setBackground(makeRoundedDrawable(this.#cl, "#18122B", 20, this.#activity));
+        const pad = dp(this.#activity, 12);
+        this.#menuLayout.setPadding(pad, pad, pad, pad);
+        this.#menuLayout.setVisibility(0x8); // GONE
+
+        // ScrollView inside menu panel
+        const scroll = this.#cl.ScrollView.$new(this.#activity);
+        const sp = this.#cl.LinearLayout_LayoutParams.$new(this.#MATCH, this.#WRAP);
+        scroll.setLayoutParams(sp);
+
+        this.#scrollLayout = this.#cl.LinearLayout.$new(this.#activity);
+        const slp = this.#cl.LinearLayout_LayoutParams.$new(this.#MATCH, this.#WRAP);
+        this.#scrollLayout.setLayoutParams(slp);
+        this.#scrollLayout.setOrientation(this.#scrollLayout.VERTICAL.value);
+
+        scroll.addView(this.#scrollLayout);
+        this.#menuLayout.addView(scroll);
+
+        // Toggle on button click
+        const that = this;
+        const ToggleListener = Java.registerClass({
+            name: "com.example.MenuToggle",
+            implements: [this.#cl.View_OnClickListener],
+            methods: {
+                onClick(v) {
+                    that.#isOpen = !that.#isOpen;
+                    that.#menuLayout.setVisibility(that.#isOpen ? 0x0 : 0x8);
+                }
+            }
+        });
+        this.#openBtn.setOnClickListener(ToggleListener.$new());
+
+        // Drag support on mainLayout
+        this.#addDrag();
+    }
+
+    #addDrag() {
+        const mainLayout = this.#mainLayout;
+        const cl = this.#cl;
+        let ix = 0, iy = 0, moved = false, t0 = 0;
+
+        const DragListener = Java.registerClass({
+            name: "com.example.MenuDrag",
+            implements: [cl.View_OnTouchListener],
+            methods: {
+                onTouch(view, event) {
+                    switch (event.getAction()) {
+                        case cl.MotionEvent.ACTION_DOWN.value:
+                            ix = view.getX() - event.getRawX();
+                            iy = view.getY() - event.getRawY();
+                            moved = false; t0 = Date.now();
+                            break;
+                        case cl.MotionEvent.ACTION_MOVE.value:
+                            view.setX(event.getRawX() + ix);
+                            view.setY(event.getRawY() + iy);
+                            if (Date.now() - t0 > 150) moved = true;
+                            break;
+                    }
+                    return false; // allow click to propagate
+                }
+            }
+        });
+        this.#mainLayout.setOnTouchListener(DragListener.$new());
+    }
+
+    setColors(colorOn, colorOff) {
+        this.#colorOn = colorOn;
+        this.#colorOff = colorOff;
+    }
+
+    addButton(id, label, callbacks) {
+        const btn = this.#cl.Button.$new(this.#activity);
+        const lp = this.#cl.LinearLayout_LayoutParams.$new(this.#MATCH, this.#WRAP);
+        lp.setMargins(0, 0, 0, dp(this.#activity, 8));
+        btn.setLayoutParams(lp);
+        btn.setText(this.#cl.String.$new(label));
+        btn.setTextColor(this.#cl.Color.parseColor("#FFFFFF"));
+        btn.setBackground(makeRoundedDrawable(this.#cl, this.#colorOff, 12, this.#activity));
+
+        let state = false;
+        const colorOn = this.#colorOn, colorOff = this.#colorOff;
+        const cl = this.#cl; const activity = this.#activity;
+
+        const ClickListener = Java.registerClass({
+            name: "com.example.BtnClick" + id,
+            implements: [this.#cl.View_OnClickListener],
+            methods: {
+                onClick(v) {
+                    state = !state;
+                    v.setBackground(makeRoundedDrawable(cl, state ? colorOn : colorOff, 12, activity));
+                    state ? callbacks.on() : callbacks.off();
+                }
+            }
+        });
+        btn.setOnClickListener(ClickListener.$new());
+        this.#scrollLayout.addView(btn);
+    }
+
+    start() {
+        this.#activity.addContentView(this.#contentView, this.#contentView.getLayoutParams());
+        this.#contentView.addView(this.#mainLayout);
+        this.#mainLayout.addView(this.#openBtn);
+        this.#mainLayout.addView(this.#menuLayout);
+    }
+}
+
 const base = Module.findBaseAddress("libg.so");
 const malloc = new NativeFunction(Module.getExportByName("libc.so", "malloc"), "pointer", ["uint"]);
 
 let state = {
-    aimbot: true,
-    dodge: true
+    aimbot: false,
+    dodge: false
 }
 
 const OFFSETS = {
@@ -460,6 +649,27 @@ function dodge() {
 function main() {
     aimbot();
     dodge();
+    Java.perform(() => {
+        Java.scheduleOnMainThread(() => {
+            const cl = getClassLoader();
+            const activity = getMainActivity(cl);
+            const menu = new Menu(cl, activity);
+
+            menu.setColors("#635985", "#443C68");
+
+            menu.addButton("aim_bot", "Aim Bot", {
+                 on: () => {state.aimbot = true;},
+                 off: () => {state.aimbot = false;}
+            });
+
+            menu.addButton("dodge", "Auto Dodge", {
+                 on: () => {state.dodge = true;},
+                 off: () => {state.dodge = false;}
+            });
+
+            menu.start();
+        });
+    });
 }
 
 setTimeout(main, 5000);
