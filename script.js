@@ -678,9 +678,7 @@ function MapData() {
             const height = mapData.add(0xc8).readInt();
             const tileArrayPtr = mapData.add(0x20).readPointer();
             //showFloater("MapSize: width: " + width.toString() + " height: " + height.toString());
-            const slotId = getRandomSpraySlot();
-            showFloater(slotId.toString());
-            showSpray(6);
+            showEmote(1);
         }
     });
 }
