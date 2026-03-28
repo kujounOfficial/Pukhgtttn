@@ -391,7 +391,7 @@ function dodge() {
                 const inputPtr = args[1];
                 const now = Date.now();
                 const test = inputPtr.add(8).readS32();
-                showFloater(test.toString());
+                //showFloater(test.toString());
 
                 if(inputId != 2) return;
                 if(inputPtr.isNull()) return;
@@ -422,8 +422,8 @@ function dodge() {
                         const dodgeMoveX = Math.round(myX + bestDodgeDir.x * dodgeStrength);
                         const dodgeMoveY = Math.round(myY + bestDodgeDir.y * dodgeStrength);
 
-                        inputPtr.add(8).writeS32(dodgeMoveX);
-                        inputPtr.add(12).writeS32(dodgeMoveY);
+                        inputPtr.add(12).writeS32(dodgeMoveX);
+                        inputPtr.add(16).writeS32(dodgeMoveY);
                     }
                 }
             } catch (e) {}
