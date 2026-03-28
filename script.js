@@ -483,11 +483,12 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
                 //const test = vtable.sub(mod.base);
                 //showFloater(test.toString());
             //}
-            if(vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
+            if(vtable.equals(PTR_VTABLE_CHARACTER_DATA)) {
+                const playerIndex = objPtr.add(0x3c).readS32();
                 //showFloater("found character");
-                const stringName = objPtr.add(0x220);
-                const name = readString(stringName);
-                showFloater(name);
+                //const stringName = objPtr.add(0x220);
+                //const name = readString(stringName);
+                showFloater(playerIndex.toString());
             }
             
 
