@@ -390,7 +390,7 @@ function dodge() {
                 if (!state.dodge) return;
                 const inputPtr = args[1];
                 const now = Date.now();
-                const test = inputPtr.add(16).readFloat();
+                const test = inputPtr.add(16).readS32();
                 showFloater(test.toString());
 
                 if(inputId != 2) return;
