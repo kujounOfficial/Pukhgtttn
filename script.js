@@ -484,7 +484,8 @@ function analyzeProjectilesAndPlayers(objects, count, myTeamId) {
                 //showFloater(test.toString());
             //}
             if(teamId >= 1 && !vtable.equals(PTR_VTABLE_PROJECTILE_DATA)) {
-                showFloater("player");
+                const addres = vtable.sub(base);
+                showFloater(addres.toString());
             }  
             
 
