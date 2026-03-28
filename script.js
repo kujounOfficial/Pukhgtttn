@@ -651,9 +651,9 @@ function dodge() {
 function ghostMode() {
     Interceptor.attach(base.add(OFFSETS.ignoresCollisions), {
         onLeave(retval) {
-            if(state.ghost) {
-                retval.replace(1);
-            }
+            //if(state.ghost) {
+                //retval.replace(1);
+            //}
         }
     });
 }
@@ -661,7 +661,7 @@ function ghostMode() {
 function main() {
     aimbot();
     dodge();
-    //ghostMode();
+    ghostMode();
     Java.perform(() => {
         Java.scheduleOnMainThread(() => {
             const cl = getClassLoader();
