@@ -391,7 +391,7 @@ function dodge() {
                 const inputPtr = args[1];
                 const now = Date.now();
                 const test = inputPtr.add(12).readS32();
-                showFloater(test.toString());
+                //showFloater(test.toString());
 
                 if(inputId != 2) return;
                 if(inputPtr.isNull()) return;
