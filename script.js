@@ -192,7 +192,8 @@ const malloc = new NativeFunction(Module.getExportByName("libc.so", "malloc"), "
 
 let state = {
     aimbot: false,
-    dodge: false
+    dodge: false,
+    ghost: false
 }
 
 const OFFSETS = {
@@ -215,7 +216,8 @@ const OFFSETS = {
     VTABLE_PROJECTILE_DATA: 0x10C36F8,
     LogicCharacterData_getCollisionRadius: 0x9DC700,
     ClientInputManager_addInput: 0x752564,
-    ClientInput_constructor_int: 0xAE44EC
+    ClientInput_constructor_int: 0xAE44EC,
+    ignoresCollisions: 0xA4EACC
 };
 
 const natives = {
@@ -646,9 +648,20 @@ function dodge() {
     showFloater("dodge loaded");
 }
 
+function ghostMode() {
+    Interceptor.attach(base.add(OFFSETS.ignoresCollisions), {
+        onLeave(retval) {
+            if(state.ghost) {
+                retval.replace(1);
+            }
+        }
+    });
+}
+
 function main() {
     aimbot();
     dodge();
+    ghostMode();
     Java.perform(() => {
         Java.scheduleOnMainThread(() => {
             const cl = getClassLoader();
@@ -665,6 +678,11 @@ function main() {
             menu.addButton("dodge", "Auto Dodge", {
                  on: () => {state.dodge = true;},
                  off: () => {state.dodge = false;}
+            });
+
+            menu.addButton("ghost", "Ghost Mode", {
+                 on: () => {state.ghost = true;},
+                 off: () => {state.ghost = false;}
             });
 
             menu.start();
