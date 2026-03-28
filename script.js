@@ -217,7 +217,8 @@ const OFFSETS = {
     LogicCharacterData_getCollisionRadius: 0x9DC700,
     ClientInputManager_addInput: 0x752564,
     ClientInput_constructor_int: 0xAE44EC,
-    ignoresCollisions: 0xA4EACC
+    ignoresCollisions: 0xA4EACC,
+    tileBasedRaycast: 0xB61FB0
 };
 
 const natives = {
@@ -660,10 +661,23 @@ function ghostMode() {
     });
 }
 
+function MapData() {
+    Interceptor.attach(base.add(OFFSETS.tileBasedRaycast), {
+        onEnter: function(args) {
+            const mapData = args[4];
+            const width  = mapData.add(0xc4).readInt();
+            const height = mapData.add(0xc8).readInt();
+            const tileArrayPtr = mapData.add(0x20).readPointer();
+            showFloater("MapSize: width: " + width.toString() + " height: " + height.toString());
+        }
+    });
+}
+
 function main() {
     aimbot();
     dodge();
-    ghostMode();
+    //ghostMode(); does nothing because server checks
+    MapData();
     Java.perform(() => {
         Java.scheduleOnMainThread(() => {
             const cl = getClassLoader();
